@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --purple-light: #DDD2EF;
+  --purple-base: #9359F3;
+  --purple-dark: #6F3CC3;
+  --green-light: #BFE3D0;
+  --green-base: #479C6E;
+  --green-dark: #2D6C4A;
+}
+
+
+:root {
+  --purple-light: #DDD2EF;
+  --purple-base: #9359F3;
+  --purple-dark: #6F3CC3;
+  --green-light: #BFE3D0;
+  --green-base: #479C6E;
+  --green-dark: #2D6C4A;
+}
+
+html, body{
+  background-color: #f3f4f6;
+}
