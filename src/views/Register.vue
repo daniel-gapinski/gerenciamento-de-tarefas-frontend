@@ -4,6 +4,9 @@ import InputField from '@/components/InputField.vue';
 import { ref } from 'vue';
 import { setupAPIClient } from '@/utils/api';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const router = useRouter();
 
@@ -21,10 +24,10 @@ const handleRegister = async () => {
   const api = setupAPIClient();
   try {
     const response = await api.post('/register', userData);
-    console.log('Usuário registrado com sucesso:', response.data);
+    toast.success('Usuário registrado com sucesso!');
     router.push("/login");
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
+    toast.error('Erro ao registrar usuário');
   }
 };
 </script>

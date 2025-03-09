@@ -28,12 +28,12 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  authStore.checkAuth(); // Verifica a autenticação antes de navegar
+  authStore.checkAuth();
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login'); // Redireciona para login se não estiver autenticado
+    next('/login');
   } else if (to.path === '/login' && authStore.isAuthenticated) {
-    next('/'); // Impede que usuários autenticados acessem a página de login
+    next('/');
   } else if(to.path === '/register' && authStore.isAuthenticated) {
     next("/");
   }

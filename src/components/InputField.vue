@@ -1,18 +1,3 @@
-<template>
-  <div class="mb-4">
-    <label :for="id" class="block text-sm font-medium text-gray-700">{{ label }}</label>
-    <input
-      :type="type"
-      :id="id"
-      :placeholder="placeholder"
-      :value="modelValue"
-      @input="updateValue"
-      :required="required"
-      class="w-full mt-2 p-2 border border-gray-300 rounded-lg outline-0"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
 
@@ -50,3 +35,19 @@ const updateValue = (event: Event) => {
   emit('update:modelValue', input.value);
 };
 </script>
+
+<template>
+  <div class="mb-4">
+    <label :for="id" class="block text-sm font-medium text-gray-700">{{ label }}</label>
+    <input
+      :type="type"
+      :id="id"
+      :placeholder="placeholder"
+      :value="modelValue"
+      @input="updateValue"
+      :required="required"
+      class="w-full mt-2 p-2 border border-gray-300 rounded-lg outline-0"
+    />
+  </div>
+</template>
+

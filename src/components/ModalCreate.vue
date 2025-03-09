@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 import { setupAPIClient } from '@/utils/api';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 interface CategoryProps {
   id: string;
@@ -27,7 +30,7 @@ const props = defineProps({
 
 });
 
-const emit = defineEmits(["update:isOpen"]);
+const emit = defineEmits(["update:isOpen", "updateTasks"]);
 
 const closeModal = () => {
   emit("update:isOpen", false);
@@ -49,16 +52,31 @@ const fetchCategory = async () => {
     const response = await api.get("/list-categories");
     categories.value = response.data;
   } catch (err) {
-    console.log(err)
+    toast.error("Erro ao buscar categoria!");
+  }
+}
+
+const fetchTasks = async () => {
+  try {
+    const response = await api.get("/list-tasks");
+    categories.value = response.data;
+  } catch (err) {
+    toast.error("Erro ao buscar informação!")
   }
 }
 
 onMounted(fetchCategory);
 
+watchEffect(() => {
+  if (props.isOpen) {
+    fetchCategory();
+  }
+});
+
 const addNewTask = async () => {
 
   if (!newTaskCreate.value.title.trim() || !newTaskCreate.value.description.trim() || !newTaskCreate.value.category_id || !newTaskCreate.value.status || !newTaskCreate.value.priority) {
-    alert("Por favor, preencha todos os campos obrigatórios.");
+    toast.warning("Por favor, preencha todos os campos obrigatórios.");
     return;
   }
 
@@ -72,11 +90,12 @@ const addNewTask = async () => {
 
   try {
     const response = await api.post("/register-task", taskData);
-    console.log(response);
-    console.log("Tarefa add com sucesso!")
+    toast.success("Tarefa add com sucesso!");
+    await fetchTasks();
+    emit("updateTasks");
     closeModal();
   } catch (err) {
-    console.error("Erro ao adicionar tarefa:", err);
+    toast.error("Erro ao adicionar tarefa!");
   }
 };
 

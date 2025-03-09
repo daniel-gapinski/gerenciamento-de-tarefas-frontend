@@ -4,6 +4,9 @@ import InputField from '@/components/InputField.vue';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { useAuthStore } from '@/store/auth';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const email = ref('');
 const password = ref('');
@@ -13,11 +16,9 @@ const authStore = useAuthStore();
 const handleLogin = async () => {
   try {
     await authStore.login(email.value, password.value);
-    console.log('Login bem-sucedido');
     router.push("/");
   } catch (error) {
-    console.error("erro ao logar");
-    alert('Falha na autenticação');
+    toast.error("erro ao fazer login");
   }
 };
 </script>
@@ -47,7 +48,6 @@ const handleLogin = async () => {
           type="submit"
           label="Entrar"
           color="blue"
-          @click="handleLogin"
           class="w-full mt-6 py-3 text-white bg-blue-500 hover:bg-blue-600 transition-all rounded-lg"
         />
       </form>

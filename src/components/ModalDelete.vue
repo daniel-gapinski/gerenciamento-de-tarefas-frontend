@@ -1,9 +1,16 @@
 <script setup lang="ts">
 
 import { setupAPIClient } from '@/utils/api';
+import { ref } from 'vue';
 
 const api = setupAPIClient();
 
+interface CategoryProps {
+  id: string;
+  name: string;
+}
+
+const categories = ref<CategoryProps[]>([]);
 
 const props = defineProps({
   isOpen: {
@@ -20,20 +27,29 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:isOpen"]);
+const emit = defineEmits(["update:isOpen", "updateTasks"]);
+
 
 const closeModal = () => {
   emit("update:isOpen", false);
 };
 
+const fetchTasks = async () => {
+  try {
+    const response = await api.get("/list-tasks");
+    categories.value = response.data;
+  } catch (err) {
+  }
+}
+
 const confirmAction = async () => {
   try {
     const response = await api.delete(`/delete-task?id=${props.id}`);
-    console.log(response.data);
     props.onConfirm(props.id);
+    emit("updateTasks");
+    await fetchTasks();
     closeModal();
   } catch (error) {
-    console.error('Erro ao excluir tarefa:', error);
   }
 };
 

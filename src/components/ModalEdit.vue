@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { setupAPIClient } from '@/utils/api';
+import { useToast } from 'vue-toastification';
 
-interface CategoryProps {
-  id: string;
-  name: string;
-}
+const toast = useToast();
 
 interface TaskProps {
   id: string;
@@ -16,25 +14,34 @@ interface TaskProps {
   priority: string;
 }
 
-const categories = ref<CategoryProps[]>([]);
+interface CategoryProps {
+  id: string;
+  name: string;
+}
 
 const api = setupAPIClient();
+const categories = ref<CategoryProps[]>([]);
+const newTaskCreate = ref<TaskProps>({ id: '', title: '', description: '', category_id: '', status: '', priority: '' });
+const emit = defineEmits(["update:isOpen", "updateTasks"]);
+const props = defineProps<{ isOpen: boolean; task?: TaskProps }>();
 
-const newTaskCreate = ref<TaskProps>({
-  id: '',
-  title: '',
-  description: '',
-  category_id: '',
-  status: '',
-  priority: '',
-});
+const fetchCategory = async () => {
+  try {
+    const response = await api.get("/list-categories");
+    categories.value = response.data;
+  } catch (err) {
+    toast.error("Erro ao buscar categoria!");
+  }
+};
 
-const props = defineProps<{
-  isOpen: boolean;
-  task?: TaskProps;
-}>();
-
-const emit = defineEmits(["update:isOpen"]);
+const fetchTasks = async () => {
+  try {
+    const response = await api.get("/list-tasks");
+    categories.value = response.data;
+  } catch (err) {
+    toast.error("Erro ao buscar tarefas!");
+  }
+};
 
 const closeModal = () => {
   emit("update:isOpen", false);
@@ -42,72 +49,36 @@ const closeModal = () => {
 };
 
 const resetForm = () => {
-  newTaskCreate.value = {
-    id: '',
-    title: '',
-    description: '',
-    category_id: '' as string,
-    status: '',
-    priority: '',
-  };
+  newTaskCreate.value = { id: '', title: '', description: '', category_id: '', status: '', priority: '' };
 };
 
-
-watch(() => props.task, (newTask) => {
-  console.log("newTask", newTask);
-  if (newTask) {
-    newTaskCreate.value = {
-      id: newTask.id,
-      title: newTask.title,
-      description: newTask.description,
-      category_id: newTask.category_id,
-      status: newTask.status,
-      priority: newTask.priority,
-    };
-  } else {
-    resetForm();
-  }
-}, { immediate: true });
-
-
-const fetchCategory = async () => {
-  try {
-    const response = await api.get("/list-categories");
-    categories.value = response.data;
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-onMounted(fetchCategory)
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask) {
+      newTaskCreate.value = { ...newTask };
+    } else {
+      resetForm();
+    }
+  },
+  { immediate: true }
+);
 
 const confirmEdit = async () => {
   try {
     const { id, status, priority, description, title } = newTaskCreate.value;
-
-    const updatedAt = new Date(); // Data de atualização
-
-    const response = await api.put("/update-task", {
-      id,
-      description,
-      title,
-      status,
-      priority,
-      updated_at: updatedAt,
-    });
-
-    // Tratar a resposta
-    console.log("Task atualizada:", response.data);
+    await api.put("/update-task", { id, description, title, status, priority, updated_at: new Date() });
+    await fetchTasks();
+    emit("updateTasks");
     closeModal();
   } catch (err) {
-    console.log("Erro ao atualizar:", err);
+    toast.error("Erro ao atualizar");
   }
 };
 
-
-
-
+onMounted(fetchCategory);
 </script>
+
 
 <template>
   <div v-if="isOpen" class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">

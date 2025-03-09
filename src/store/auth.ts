@@ -19,34 +19,24 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email: string, password: string) {
       try {
-        const response = await axios.post('http://localhost:3000/login', { email, password });
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { email, password });
         const { token, name, email: userEmail, id } = response.data;
-
-        console.log('Resposta do servidor:', response.data);
 
         if (!token || !id || !name || !userEmail) {
           throw new Error("Falha ao autenticar.");
         }
 
-        // Armazena o token nos cookies
         setCookie(null, '@app.token', token, { maxAge: 30 * 24 * 60 * 60, path: '/' });
 
-        // Atualiza o estado usando $patch
         this.$patch({
           token,
           user: { id, name, email: userEmail },
           isAuthenticated: true,
         });
 
-        console.log('Login bem-sucedido:', this.isAuthenticated);
-
-        // 🔹 Teste se a navegação está funcionando
-        console.log("Redirecionando para a página inicial...");
         router.push("/");
 
-      } catch (error) {
-        console.error('Falha na autenticação:', error);
-      }
+      } catch (error) {}
     },
 
     async logout() {
@@ -57,8 +47,6 @@ export const useAuthStore = defineStore('auth', {
         user: null,
         isAuthenticated: false,
       });
-
-      console.log('Usuário deslogado.');
 
       router.push("/login");
     },
@@ -88,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     getToken: (state) => state.token,
-    isUserAuthenticated: (state) => state.isAuthenticated, // Renomeado para evitar conflito
+    isUserAuthenticated: (state) => state.isAuthenticated,
     getUser: (state) => state.user,
   },
 });

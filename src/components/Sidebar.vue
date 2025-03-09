@@ -2,6 +2,9 @@
 import { useAuthStore } from '@/store/auth';
 import Container from './Container.vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -9,12 +12,9 @@ const authStore = useAuthStore();
 const handleLogout = async () => {
   try {
     await authStore.logout();
-    console.log('Logout realizado com sucesso');
+    toast.success('Logout realizado com sucesso, até breve!');
     router.push("/login");
-  } catch (error) {
-    console.error("Erro ao fazer logout", error);
-    alert('Erro ao sair da conta');
-  }
+  } catch (error) {}
 };
 
 </script>
